@@ -1,78 +1,51 @@
 package com.dicoding.picodiploma.loginwithanimation.view.main
 
 import android.content.Intent
-import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.WindowInsets
-import android.view.WindowManager
-import android.widget.Toast
-import androidx.activity.viewModels
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityOptionsCompat
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager.widget.ViewPager
 import com.dicoding.picodiploma.loginwithanimation.R
-import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
-import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMainBinding
-import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
 import com.dicoding.picodiploma.loginwithanimation.view.addstory.AddStoryActivity
-import com.dicoding.picodiploma.loginwithanimation.view.detail.DetailStoryActivity
 import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
-import com.dicoding.picodiploma.loginwithanimation.view.maps.adapter.LoadingStateAdapter
-import com.dicoding.picodiploma.loginwithanimation.view.maps.adapter.StoryPagingDataAdapter
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
-    private val viewModel by viewModels<MainViewModel> {
-        ViewModelFactory.getInstance(this)
-    }
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var storyAdapter: StoryPagingDataAdapter
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var viewPager: ViewPager
+    private lateinit var searchInput: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
-        // Inisialisasi SharedPreferences
-        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
-        setSupportActionBar(binding.toolbar)
+        // Inisialisasi ViewPager
+        viewPager = findViewById(R.id.viewPager)
+        val images = listOf(R.drawable.img_1, R.drawable.img_2, R.drawable.img_3) // Ganti dengan gambar Anda
+        val adapter = ImageSliderAdapter(this, images)
+        viewPager.adapter = adapter
+
+        // Inisialisasi EditText untuk pencarian
+        searchInput = findViewById(R.id.search_input)
 
         // Setup BottomNavigationView
-        binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.action_home -> {
-                    // Home sudah di MainActivity, tidak perlu melakukan apa-apa
-                    true
-                }
+                R.id.action_home -> true
                 R.id.action_add_story -> {
-                    val intent = Intent(this, AddStoryActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, AddStoryActivity::class.java))
                     true
                 }
                 R.id.action_maps -> {
-                    val intent = Intent(this, MapsActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, MapsActivity::class.java))
                     true
                 }
                 else -> false
-            }
-        }
-
-        viewModel.getSession().observe(this) { user ->
-            if (!user.isLogin) {
-                startActivity(Intent(this, WelcomeActivity::class.java))
-                finish()
-            } else {
-                setupView(user)
-                getPagedStories(user.token)
             }
         }
     }
@@ -84,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_logout -> { // Menangani klik pada item logout
+            R.id.action_logout -> {
                 logout()
                 true
             }
@@ -93,50 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        viewModel.logout() // Panggil fungsi logout dari ViewModel
-        startActivity(Intent(this, WelcomeActivity::class.java)) // Arahkan ke WelcomeActivity
-        finish() // Tutup MainActivity
-    }
-
-    private fun setupView(user: UserModel) {
-        @Suppress("DEPRECATION")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(WindowInsets.Type.statusBars())
-        } else {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
-        }
-
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        storyAdapter = StoryPagingDataAdapter { storyItem, sharedImageView ->
-            val intent = Intent(this, DetailStoryActivity::class.java)
-            intent.putExtra("storyItem", storyItem)
-            intent.putExtra("storyId", storyItem.id)
-            intent.putExtra("token", user.token)
-
-            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this,
-                sharedImageView,
-                sharedImageView.transitionName
-            )
-            startActivity(intent, options.toBundle())
-        }
-        binding.recyclerView.adapter = storyAdapter.withLoadStateFooter(
-            footer = LoadingStateAdapter { storyAdapter.retry() }
-        )
-    }
-
-    private fun getPagedStories(token: String) {
-        lifecycleScope.launch {
-            viewModel.getPagedStories(token).collectLatest { pagingData ->
-                storyAdapter.submitData(pagingData)
-            }
-        }
-    }
-
-    private fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        startActivity(Intent(this, WelcomeActivity::class.java))
+        finish()
     }
 }

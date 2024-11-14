@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".view.main.MainActivity">
 
     <!-- Toolbar untuk judul -->
@@ -11,12 +12,37 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/navy"
-        app:title="Cat Ease"
-        app:titleTextColor="@android:color/white"
+        android:background="@color/white"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Gambar di sebelah judul -->
+            <ImageView
+                android:id="@+id/toolbar_image"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/img_5"
+                android:contentDescription="@string/title_activity_main"
+                android:layout_marginEnd="8dp" /> <!-- Jarak antara gambar dan judul -->
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="@color/navy" />
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <!-- ProgressBar untuk menampilkan status loading -->
     <ProgressBar
@@ -25,24 +51,46 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@id/recycler_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- RecyclerView untuk menampilkan daftar cerita -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <EditText
+        android:id="@+id/search_input"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/search"
+        android:padding="12dp"
+        android:background="@drawable/rounded_button"
+        android:drawableEnd="@drawable/baseline_search_24"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/navy"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:clipToPadding="false"
-        android:padding="16dp" />
+        android:layout_margin="16dp"/>
 
     <!-- BottomNavigationView untuk navigasi -->
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_input"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"> <!-- Warna latar belakang CardView -->
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.cardview.widget.CardView>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
