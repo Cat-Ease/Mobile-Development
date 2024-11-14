@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_map"
-        android:icon="@drawable/baseline_map_24"
-        android:title=""
-        app:showAsAction="ifRoom" /> <!-- Gunakan app:showAsAction -->
-    </menu>
+        android:id="@+id/action_logout"
+        android:title="@string/logout"
+        android:icon="@drawable/baseline_logout_24"
+        app:showAsAction="ifRoom" /> <!-- Menampilkan ikon di toolbar jika ada ruang -->
+</menu>

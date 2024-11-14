@@ -42,7 +42,7 @@ class ProfileActivity : AppCompatActivity() {
                     startActivity(Intent(this, AddStoryActivity::class.java))
                     true
                 }
-                R.id.action_profile -> {
+                R.id.action_maps -> {
                     // Profile sudah di ProfileActivity, tidak perlu melakukan apa-apa
                     true
                 }

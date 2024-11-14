@@ -1,6 +1,7 @@
 package com.dicoding.picodiploma.loginwithanimation.view.main
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -22,9 +23,7 @@ import com.dicoding.picodiploma.loginwithanimation.view.detail.DetailStoryActivi
 import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
 import com.dicoding.picodiploma.loginwithanimation.view.maps.adapter.LoadingStateAdapter
 import com.dicoding.picodiploma.loginwithanimation.view.maps.adapter.StoryPagingDataAdapter
-import com.dicoding.picodiploma.loginwithanimation.view.profile.ProfileActivity // Import ProfileActivity
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -34,11 +33,15 @@ class MainActivity : AppCompatActivity() {
     }
     private lateinit var binding: ActivityMainBinding
     private lateinit var storyAdapter: StoryPagingDataAdapter
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Inisialisasi SharedPreferences
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
 
         setSupportActionBar(binding.toolbar)
 
@@ -54,8 +57,8 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
-                R.id.action_profile -> {
-                    val intent = Intent(this, ProfileActivity::class.java)
+                R.id.action_maps -> {
+                    val intent = Intent(this, MapsActivity::class.java)
                     startActivity(intent)
                     true
                 }
@@ -81,13 +84,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_map -> {
-                val intent = Intent(this, MapsActivity::class.java)
-                startActivity(intent)
+            R.id.action_logout -> { // Menangani klik pada item logout
+                logout()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun logout() {
+        viewModel.logout() // Panggil fungsi logout dari ViewModel
+        startActivity(Intent(this, WelcomeActivity::class.java)) // Arahkan ke WelcomeActivity
+        finish() // Tutup MainActivity
     }
 
     private fun setupView(user: UserModel) {

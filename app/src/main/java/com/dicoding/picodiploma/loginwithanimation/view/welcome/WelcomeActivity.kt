@@ -9,17 +9,38 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityWelcomeBinding
 import com.dicoding.picodiploma.loginwithanimation.view.login.LoginActivity
 import com.dicoding.picodiploma.loginwithanimation.view.signup.SignupActivity
+import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
+import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
+import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
+import androidx.activity.viewModels
+import com.dicoding.picodiploma.loginwithanimation.view.main.MainViewModel
 
 class WelcomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWelcomeBinding
+    private val viewModel by viewModels<MainViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWelcomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Cek status login
+        checkLoginStatus()
+
         setupView()
         setupAction()
+    }
+
+    private fun checkLoginStatus() {
+        viewModel.getSession().observe(this) { user ->
+            if (user.isLogin) {
+                // Jika sudah login, buka MainActivity
+                startActivity(Intent(this, MainActivity::class.java))
+                finish() // Tutup WelcomeActivity
+            }
+        }
     }
 
     private fun setupView() {
