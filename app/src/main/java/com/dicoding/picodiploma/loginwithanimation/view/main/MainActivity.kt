@@ -66,7 +66,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        // Hapus sesi pengguna dari SharedPreferences
+        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.clear() // Menghapus semua data
+        editor.apply() // Simpan perubahan
+
+        // Arahkan kembali ke WelcomeActivity
         startActivity(Intent(this, WelcomeActivity::class.java))
-        finish()
+        finish() // Tutup MainActivity
     }
 }

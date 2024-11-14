@@ -9,17 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityWelcomeBinding
 import com.dicoding.picodiploma.loginwithanimation.view.login.LoginActivity
 import com.dicoding.picodiploma.loginwithanimation.view.signup.SignupActivity
-import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
-import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
-import androidx.activity.viewModels
-import com.dicoding.picodiploma.loginwithanimation.view.main.MainViewModel
 
 class WelcomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWelcomeBinding
-    private val viewModel by viewModels<MainViewModel> {
-        ViewModelFactory.getInstance(this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,12 +27,13 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun checkLoginStatus() {
-        viewModel.getSession().observe(this) { user ->
-            if (user.isLogin) {
-                // Jika sudah login, buka MainActivity
-                startActivity(Intent(this, MainActivity::class.java))
-                finish() // Tutup WelcomeActivity
-            }
+        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false) // Ganti dengan kunci yang sesuai
+
+        if (isLoggedIn) {
+            // Jika sudah login, buka MainActivity
+            startActivity(Intent(this, MainActivity::class.java))
+            finish() // Tutup WelcomeActivity
         }
     }
 
