@@ -60,6 +60,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/search"
         android:padding="12dp"
+        android:inputType="text"
         android:background="@drawable/rounded_button"
         android:drawableEnd="@drawable/baseline_search_24"
         android:drawablePadding="8dp"
@@ -69,9 +70,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp"/>
 
-    <!-- BottomNavigationView untuk navigasi -->
-
+    <!-- CardView untuk konten -->
     <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
         android:layout_width="0dp"
         android:layout_height="200dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -90,6 +91,31 @@
             android:layout_height="match_parent" />
 
     </androidx.cardview.widget.CardView>
+
+    <!-- TextView dan Button di bawah CardView -->
+    <TextView
+        android:id="@+id/article_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/title_article"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/card_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_check_all"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/button_check_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lihat"
+        android:backgroundTint="@color/navy"
+        app:layout_constraintTop_toBottomOf="@id/card_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
