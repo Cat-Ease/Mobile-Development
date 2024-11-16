@@ -3,17 +3,21 @@
     <item
         android:id="@+id/action_home"
         android:icon="@drawable/baseline_home_filled_24"
-        android:title="@string/title_home" />
+        android:title="@string/title_home"
+        android:checkable="true"/>
     <item
         android:id="@+id/action_add_story"
         android:icon="@drawable/baseline_camera_alt_24"
-        android:title="@string/title_dashboard" />
+        android:title="@string/title_dashboard"
+        android:checkable="true"/>
     <item
         android:id="@+id/action_article"
         android:icon="@drawable/baseline_article_24"
-        android:title="@string/title_article" />
+        android:title="@string/title_article"
+        android:checkable="true"/>
     <item
         android:id="@+id/action_maps"
         android:icon="@drawable/baseline_person_24"
-        android:title="@string/title_notifications" />
+        android:title="@string/title_notifications"
+        android:checkable="true"/>
 </menu>
