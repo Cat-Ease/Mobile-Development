@@ -1,10 +1,15 @@
 package com.dicoding.picodiploma.loginwithanimation.view.maps
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -17,22 +22,27 @@ import com.dicoding.picodiploma.loginwithanimation.data.repository.StoryReposito
 import com.dicoding.picodiploma.loginwithanimation.data.retrofit.ApiService
 import com.dicoding.picodiploma.loginwithanimation.di.Injection
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
-import com.dicoding.picodiploma.loginwithanimation.data.response.ListStoryItem
 import com.dicoding.picodiploma.loginwithanimation.view.login.dataStore
+import com.dicoding.picodiploma.loginwithanimation.view.addstory.AddStoryActivity
+import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
+import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private lateinit var searchInput: EditText
+    private lateinit var searchButton: Button
     private val viewModel: MapsViewModel by viewModels {
         ViewModelFactory(
             userRepository = Injection.provideRepository(this),
@@ -47,30 +57,61 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Menginisialisasi peta
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        searchInput = findViewById(R.id.search_input)
+        searchButton = findViewById(R.id.search_button)
+
+        searchButton.setOnClickListener {
+            val locationName = searchInput.text.toString()
+            searchLocation(locationName)
+        }
+
+        setupBottomNavigation() // Setup bottom navigation
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.action_maps
+    }
+
+    private fun setupBottomNavigation() {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.action_home -> {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    true
+                }
+                R.id.action_add_story -> {
+                    startActivity(Intent(this, AddStoryActivity::class.java))
+                    true
+                }
+                R.id.action_save -> {
+                    startActivity(Intent(this, SaveActivity::class.java))
+                    true
+                }
+                R.id.action_maps -> {
+                    // Tetap di MapsActivity
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        checkLocationPermission() // Memeriksa izin lokasi
+        checkLocationPermission()
 
-        // Pindahkan kamera ke Indonesia (Jakarta) saat peta siap
-        val indonesiaLatLng = LatLng(-6.2088, 106.8456) // Koordinat Jakarta
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(indonesiaLatLng, 5f)) // Zoom level 5 untuk melihat area yang lebih luas
+        val indonesiaLatLng = LatLng(-6.2088, 106.8456)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(indonesiaLatLng, 5f))
 
-        // Mengambil token dari UserPreference dan menggunakan untuk memanggil getStories
         val userPreference = UserPreference.getInstance(dataStore)
         lifecycleScope.launch {
             userPreference.getSession().collectLatest { userModel ->
                 val token = userModel.token
-                val bearerToken = "Bearer $token" // Menambahkan "Bearer " sebelum token
-                viewModel.fetchStoriesWithLocation(bearerToken) // Memanggil fungsi dengan token yang benar
-                viewModel.storiesWithLocation.observe(this@MapsActivity) { stories ->
-                    addMarkersToMap(stories) // Menambahkan marker ke peta
-                }
+                val bearerToken = "Bearer $token"
+                viewModel.fetchStoriesWithLocation(bearerToken)
             }
         }
     }
@@ -79,7 +120,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionRequestCode)
         } else {
-            getMyLocation() // Izin sudah diberikan, dapatkan lokasi
+            getMyLocation()
         }
     }
 
@@ -87,7 +128,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == locationPermissionRequestCode) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                getMyLocation() // Izin diberikan, dapatkan lokasi
+                getMyLocation()
             } else {
                 // Izin ditolak, tampilkan pesan
             }
@@ -96,47 +137,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun getMyLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mMap.isMyLocationEnabled = true // Menampilkan lokasi pengguna di peta
+            mMap.isMyLocationEnabled = true
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f)) // Pindahkan kamera ke lokasi pengguna
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
                 }
             }
         }
     }
 
-    private fun addMarkersToMap(stories: List<ListStoryItem>) {
-        if (stories.isNotEmpty()) {
-            stories.forEach { story ->
-                val lat = story.lat ?: run {
-                    Log.w("MapsActivity", "Latitude is null for story: ${story.name}")
-                    return@forEach // Jika lat null, lewati
-                }
-                val lon = story.lon ?: run {
-                    Log.w("MapsActivity", "Longitude is null for story: ${story.name}")
-                    return@forEach // Jika lon null, lewati
-                }
-                val latLng = LatLng(lat, lon)
-                Log.d("MapsActivity", "Adding marker for story: ${story.name} at ($lat, $lon)")
-                mMap.addMarker(
-                    MarkerOptions()
-                        .position(latLng)
-                        .title(story.name)
-                        .snippet(story.description)
-                )
-            }
-            // Pindahkan kamera ke marker pertama setelah semua marker ditambahkan
-            val firstStory = stories[0]
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(firstStory.lat ?: 0.0, firstStory.lon ?: 0.0), 10f))
+    private fun searchLocation(locationName: String) {
+        val geocoder = Geocoder(this, Locale.getDefault())
+        val addresses: List<Address>? = geocoder.getFromLocationName(locationName, 1)
+
+        if (!addresses.isNullOrEmpty()) {
+            val address = addresses[0]
+            val latLng = LatLng(address.latitude, address.longitude)
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         } else {
-            Log.w("MapsActivity", "No stories available to display markers.")
+            Log.e("MapsActivity", "Location not found")
         }
     }
 
     private fun setMapStyle() {
         // Implementasi untuk mengatur gaya peta
-        // Misalnya, menggunakan JSON untuk mengatur gaya peta
     }
 }
