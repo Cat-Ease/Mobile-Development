@@ -73,9 +73,9 @@ class LoginActivity : AppCompatActivity() {
 
                     // Tampilkan dialog sukses
                     AlertDialog.Builder(this).apply {
-                        setTitle("Yeah!")
-                        setMessage("Anda berhasil login. Sudah tidak sabar untuk update story ya?")
-                        setPositiveButton("Lanjut") { _, _ ->
+                        setTitle("Success!")
+                        setMessage("Login success.")
+                        setPositiveButton("Next") { _, _ ->
                             // Pindah ke MainActivity
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

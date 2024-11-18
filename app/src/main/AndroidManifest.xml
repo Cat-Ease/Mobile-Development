@@ -57,6 +57,7 @@
 
         <activity android:name=".view.detail.DetailStoryActivity" />
         <activity android:name=".view.addstory.AddStoryActivity" />
+        <activity android:name=".view.save.SaveActivity"/>
         <activity
             android:name=".view.profile.ProfileActivity"
             android:exported="true"

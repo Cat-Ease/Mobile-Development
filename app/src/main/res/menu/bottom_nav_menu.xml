@@ -6,13 +6,18 @@
         android:checkable="true"
         android:title="" />
     <item
+        android:id="@+id/action_article"
+        android:icon="@drawable/baseline_article_24"
+        android:checkable="true"
+        android:title="" />
+    <item
         android:id="@+id/action_add_story"
         android:icon="@drawable/baseline_camera_alt_24"
         android:checkable="true"
         android:title="" />
     <item
-        android:id="@+id/action_article"
-        android:icon="@drawable/baseline_article_24"
+        android:id="@+id/action_save"
+        android:icon="@drawable/baseline_save_24"
         android:checkable="true"
         android:title="" />
     <item

@@ -28,7 +28,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun checkLoginStatus() {
         val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false) // Ganti dengan kunci yang sesuai
+        val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
         if (isLoggedIn) {
             // Jika sudah login, buka MainActivity

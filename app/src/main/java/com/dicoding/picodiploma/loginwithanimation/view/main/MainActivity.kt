@@ -10,6 +10,7 @@ import androidx.viewpager.widget.ViewPager
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.view.addstory.AddStoryActivity
 import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
+import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -39,6 +40,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.action_home -> true
                 R.id.action_add_story -> {
                     startActivity(Intent(this, AddStoryActivity::class.java))
+                    true
+                }
+                R.id.action_save -> {
+                    startActivity(Intent(this, SaveActivity::class.java))
                     true
                 }
                 R.id.action_maps -> {
