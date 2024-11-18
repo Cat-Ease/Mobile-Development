@@ -24,6 +24,7 @@ import com.dicoding.picodiploma.loginwithanimation.di.Injection
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.view.login.dataStore
 import com.dicoding.picodiploma.loginwithanimation.view.addstory.AddStoryActivity
+import com.dicoding.picodiploma.loginwithanimation.view.article.ArticleActivity
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
 import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
 import com.google.android.gms.location.LocationServices
@@ -80,6 +81,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             when (item.itemId) {
                 R.id.action_home -> {
                     startActivity(Intent(this, MainActivity::class.java))
+                    true
+                }
+                R.id.action_article -> {
+                    startActivity(Intent(this, ArticleActivity::class.java))
                     true
                 }
                 R.id.action_add_story -> {

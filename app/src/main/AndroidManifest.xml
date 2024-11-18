@@ -55,6 +55,7 @@
             android:name=".view.login.LoginActivity"
             android:exported="false" />
 
+        <activity android:name=".view.article.ArticleActivity"/>
         <activity android:name=".view.detail.DetailStoryActivity" />
         <activity android:name=".view.addstory.AddStoryActivity" />
         <activity android:name=".view.save.SaveActivity"/>

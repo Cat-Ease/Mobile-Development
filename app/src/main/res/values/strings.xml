@@ -23,5 +23,6 @@
     <string name="title_notifications">Profile</string>
     <string name="search">Search…</string>
     <string name="lihat">lihat semua</string>
+    <string name="HomeText">A healthier cat, a happier you.</string>
 
 </resources>

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.view.addstory.AddStoryActivity
+import com.dicoding.picodiploma.loginwithanimation.view.article.ArticleActivity
 import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
 import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
@@ -16,7 +17,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager
-    private lateinit var searchInput: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,14 +30,15 @@ class MainActivity : AppCompatActivity() {
         val adapter = ImageSliderAdapter(this, images)
         viewPager.adapter = adapter
 
-        // Inisialisasi EditText untuk pencarian
-        searchInput = findViewById(R.id.search_input)
-
         // Setup BottomNavigationView
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.action_home -> true
+                R.id.action_article -> {
+                    startActivity(Intent(this, ArticleActivity::class.java))
+                    true
+                }
                 R.id.action_add_story -> {
                     startActivity(Intent(this, AddStoryActivity::class.java))
                     true
