@@ -5,5 +5,5 @@
     <stroke
         android:width="2dp"
         android:color="@color/navy"/>
-    <solid android:color="#FFFFFF"/> <!-- Warna latar belakang -->
+    <solid android:color="#54FFFFFF"/> <!-- Warna latar belakang -->
 </shape>

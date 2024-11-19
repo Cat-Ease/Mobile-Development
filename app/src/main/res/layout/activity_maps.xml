@@ -38,12 +38,14 @@
         android:layout_width="133dp"
         android:layout_height="37dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="76dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_button"
         android:drawableEnd="@drawable/baseline_search_24"
         android:text="@string/search"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_input" />
+        app:layout_constraintTop_toBottomOf="@id/search_input"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
