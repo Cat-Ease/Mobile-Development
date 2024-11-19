@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.view.addstory.AddStoryActivity
@@ -15,6 +16,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class ArticleActivity : AppCompatActivity() {
 
+    private lateinit var breakingNewsTitle: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_article)
@@ -23,6 +26,12 @@ class ArticleActivity : AppCompatActivity() {
         setupBottomNavigation() // Setup bottom navigation
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.action_article
+
+        // Inisialisasi Views
+        breakingNewsTitle = findViewById(R.id.breaking_news_title)
+
+        // Mengatur konten judul berita
+        breakingNewsTitle.text = "Breaking News" // Ganti dengan judul yang sesuai
     }
 
     private fun setupBottomNavigation() {
