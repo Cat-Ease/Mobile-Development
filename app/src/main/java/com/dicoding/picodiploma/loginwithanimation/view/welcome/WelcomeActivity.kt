@@ -8,8 +8,8 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityWelcomeBinding
 import com.dicoding.picodiploma.loginwithanimation.view.login.LoginActivity
-import com.dicoding.picodiploma.loginwithanimation.view.signup.SignupActivity
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
+import com.dicoding.picodiploma.loginwithanimation.view.signup.SignupActivity
 
 class WelcomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWelcomeBinding
@@ -19,22 +19,8 @@ class WelcomeActivity : AppCompatActivity() {
         binding = ActivityWelcomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Cek status login
-        checkLoginStatus()
-
         setupView()
         setupAction()
-    }
-
-    private fun checkLoginStatus() {
-        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
-
-        if (isLoggedIn) {
-            // Jika sudah login, buka MainActivity
-            startActivity(Intent(this, MainActivity::class.java))
-            finish() // Tutup WelcomeActivity
-        }
     }
 
     private fun setupView() {
@@ -57,6 +43,22 @@ class WelcomeActivity : AppCompatActivity() {
 
         binding.signupButton.setOnClickListener {
             startActivity(Intent(this, SignupActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkLoginStatus() // Pindahkan pemeriksaan status login ke sini
+    }
+
+    private fun checkLoginStatus() {
+        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
+
+        if (isLoggedIn) {
+            // Jika sudah login, buka MainActivity
+            startActivity(Intent(this, MainActivity::class.java))
+            finish() // Tutup WelcomeActivity
         }
     }
 }

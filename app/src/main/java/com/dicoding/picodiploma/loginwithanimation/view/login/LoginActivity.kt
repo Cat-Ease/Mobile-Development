@@ -71,6 +71,12 @@ class LoginActivity : AppCompatActivity() {
                     val userModel = UserModel(email, response.loginResult?.token ?: "", true)
                     authViewModel.saveSession(userModel)
 
+                    // Simpan status login di SharedPreferences
+                    val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putBoolean("is_logged_in", true) // Set status login menjadi true
+                    editor.apply() // Simpan perubahan
+
                     // Tampilkan dialog sukses
                     AlertDialog.Builder(this).apply {
                         setTitle("Success!")
