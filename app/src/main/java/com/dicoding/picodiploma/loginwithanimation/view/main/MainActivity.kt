@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
@@ -53,6 +54,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+        // Inisialisasi tombol untuk navigasi ke ArticleActivity
+        val buttonCheckAll = findViewById<Button>(R.id.button_check_all)
+        buttonCheckAll.setOnClickListener {
+            // Navigasi ke ArticleActivity
+            startActivity(Intent(this, ArticleActivity::class.java))
         }
     }
 
