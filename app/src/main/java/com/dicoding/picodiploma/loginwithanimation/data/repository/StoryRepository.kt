@@ -1,13 +1,10 @@
 package com.dicoding.picodiploma.loginwithanimation.data.repository
 
-import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.liveData
 import com.dicoding.picodiploma.loginwithanimation.data.response.ListStoryItem
 import com.dicoding.picodiploma.loginwithanimation.data.response.NewStoryResponse
-import com.dicoding.picodiploma.loginwithanimation.data.response.StoryResponse
 import com.dicoding.picodiploma.loginwithanimation.data.retrofit.ApiService
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
@@ -22,10 +19,6 @@ class StoryRepository(private val apiService: ApiService) {
         token: String
     ): Response<NewStoryResponse> {
         return apiService.uploadStory(description, photo, token)
-    }
-
-    suspend fun getStoriesWithLocation(bearerToken: String): StoryResponse {
-        return apiService.getStoriesWithLocation(bearerToken)
     }
 
     fun getStoriesStream(token: String): Flow<PagingData<ListStoryItem>> {

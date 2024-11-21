@@ -22,7 +22,7 @@ import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMapsBinding
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
 import com.dicoding.picodiploma.loginwithanimation.data.repository.StoryRepository
-import com.dicoding.picodiploma.loginwithanimation.data.retrofit.ApiService
+import com.dicoding.picodiploma.loginwithanimation.data.retrofit.ApiConfig
 import com.dicoding.picodiploma.loginwithanimation.di.Injection
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.view.login.dataStore
@@ -56,7 +56,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val viewModel: MapsViewModel by viewModels {
         ViewModelFactory(
             userRepository = Injection.provideRepository(this),
-            storyRepository = StoryRepository(ApiService.create())
+            storyRepository = StoryRepository(ApiConfig.getApiService()) // Menggunakan ApiConfig untuk mendapatkan ApiService
         )
     }
 
@@ -171,7 +171,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             userPreference.getSession().collectLatest { userModel ->
                 val token = userModel.token
                 val bearerToken = "Bearer $token"
-                viewModel.fetchStoriesWithLocation(bearerToken)
             }
         }
     }

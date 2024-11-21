@@ -2,8 +2,11 @@ package com.dicoding.picodiploma.loginwithanimation.view.signup
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.dicoding.picodiploma.loginwithanimation.data.model.SignupResponse
+import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.data.repository.AuthRepository
 import com.dicoding.picodiploma.loginwithanimation.data.retrofit.ApiConfig
@@ -21,7 +24,7 @@ class SignupActivity : AppCompatActivity() {
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val apiService = ApiConfig.getApiService(token = toString())
+        val apiService = ApiConfig.getAuthApiService()
         val userPreferences = UserPreference.getInstance(dataStore)
         val authRepository = AuthRepository(apiService, userPreferences)
         authViewModel = AuthViewModel(authRepository)
@@ -45,17 +48,22 @@ class SignupActivity : AppCompatActivity() {
             binding.progressBar.visibility = android.view.View.VISIBLE
 
             // Panggil fungsi register
-            authViewModel.register(name, email, password) { response ->
+            authViewModel.register(name, email, password) { response: SignupResponse ->
                 // Sembunyikan ProgressBar setelah proses selesai
                 binding.progressBar.visibility = android.view.View.GONE
 
+                // Log respons
+                Log.d("SignupActivity", "Response: $response")
+
+                // Periksa apakah ada error
                 if (response.error == true) {
                     // Tampilkan pesan error
                     showAlert("Error", response.message ?: "Terjadi kesalahan saat registrasi")
                 } else {
                     // Proses registrasi berhasil
+                    authViewModel.saveSession(UserModel(name = name, email = email, token = "", password = password))
+
                     showAlert("Sukses", "Akun berhasil dibuat!") {
-                        // Pindah ke WelcomeActivity
                         val intent = Intent(this@SignupActivity, WelcomeActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)

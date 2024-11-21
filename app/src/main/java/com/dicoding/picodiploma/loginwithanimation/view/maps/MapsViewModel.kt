@@ -18,16 +18,4 @@ class MapsViewModel(private val repository: StoryRepository) : ViewModel() {
     val storiesWithLocation: LiveData<List<ListStoryItem>> = _storiesWithLocation
 
     // Fetch stories with location
-    fun fetchStoriesWithLocation(bearerToken: String) {
-        viewModelScope.launch {
-            try {
-                val response: StoryResponse = repository.getStoriesWithLocation(bearerToken)
-                val nonNullStories = response.listStory?.filterNotNull() ?: emptyList()
-                _storiesWithLocation.value = nonNullStories
-            } catch (e: Exception) {
-                // Handle error by setting an empty list if there is an exception
-                _storiesWithLocation.value = emptyList()
-            }
-        }
-    }
 }

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.dicoding.picodiploma.loginwithanimation.data.model.AuthResponse
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.data.repository.AuthRepository
@@ -18,6 +19,9 @@ import com.dicoding.picodiploma.loginwithanimation.data.retrofit.ApiConfig
 import com.dicoding.picodiploma.loginwithanimation.viewmodel.AuthViewModel
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityLoginBinding
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
@@ -30,10 +34,9 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Inisialisasi ApiService, UserPreference, dan AuthRepository
-        val apiService = ApiConfig.getApiService(token = toString())
+        // Inisialisasi UserPreference dan AuthRepository
         val userPreferences = UserPreference.getInstance(dataStore)
-        val authRepository = AuthRepository(apiService, userPreferences)
+        val authRepository = AuthRepository(ApiConfig.getAuthApiService(), userPreferences)
         authViewModel = AuthViewModel(authRepository)
 
         setupView()
@@ -62,40 +65,40 @@ class LoginActivity : AppCompatActivity() {
             binding.progressBar.visibility = android.view.View.VISIBLE
 
             // Melakukan login
-            authViewModel.login(email, password) { response ->
-                // Sembunyikan ProgressBar setelah proses selesai
-                binding.progressBar.visibility = android.view.View.GONE
+            val userModel = UserModel(name = "", email = email, token = "", password = password) // Menggunakan string kosong untuk name
+            val authApi = ApiConfig.getAuthApiService()
+            authApi.login(userModel).enqueue(object : Callback<AuthResponse> {
+                override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+                    binding.progressBar.visibility = android.view.View.GONE
 
-                if (response.error != true) {
-                    // Simpan sesi pengguna
-                    val userModel = UserModel(email, response.loginResult?.token ?: "", true)
-                    authViewModel.saveSession(userModel)
+                    if (response.isSuccessful && response.body()?.status == "success") {
+                        // Simpan sesi pengguna
+                        val token = response.body()?.loginResult?.token ?: ""
+                        authViewModel.saveSession(UserModel(name = "", email = email, token = token, password = password))
 
-                    // Simpan status login di SharedPreferences
-                    val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
-                    val editor = sharedPreferences.edit()
-                    editor.putBoolean("is_logged_in", true) // Set status login menjadi true
-                    editor.apply() // Simpan perubahan
-
-                    // Tampilkan dialog sukses
-                    AlertDialog.Builder(this).apply {
-                        setTitle("Success!")
-                        setMessage("Login success.")
-                        setPositiveButton("Next") { _, _ ->
-                            // Pindah ke MainActivity
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                            startActivity(intent)
-                            finish()
+                        // Tampilkan dialog sukses
+                        AlertDialog.Builder(this@LoginActivity).apply {
+                            setTitle("Success!")
+                            setMessage("Login success.")
+                            setPositiveButton("Next") { _, _ ->
+                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                                finish()
+                            }
+                            create()
+                            show()
                         }
-                        create()
-                        show()
+                    } else {
+                        showErrorDialog(response.body()?.message ?: "Email atau password salah.")
                     }
-                } else {
-                    // Tampilkan pesan error jika login gagal
-                    showErrorDialog(response.message ?: "Email atau password salah.")
                 }
-            }
+
+                override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                    binding.progressBar.visibility = android.view.View.GONE
+                    showErrorDialog("Terjadi kesalahan: ${t.message}")
+                }
+            })
         }
     }
 
