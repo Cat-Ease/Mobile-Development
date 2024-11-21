@@ -8,8 +8,9 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
-import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -34,6 +35,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -42,7 +46,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-    private lateinit var searchInput: EditText
+    private lateinit var searchInput: AutoCompleteTextView
     private lateinit var searchButton: Button
     private val viewModel: MapsViewModel by viewModels {
         ViewModelFactory(
@@ -52,11 +56,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private val locationPermissionRequestCode = 1
+    private val suggestions = mutableListOf<String>() // List untuk menyimpan saran lokasi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, getString(R.string.google_maps_key))
+        }
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -65,12 +74,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         searchInput = findViewById(R.id.search_input)
         searchButton = findViewById(R.id.search_button)
 
+        // Setup adapter untuk AutoCompleteTextView
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, suggestions)
+        searchInput.setAdapter(adapter)
+
+        searchInput.setOnItemClickListener { parent, view, position, id ->
+            val selectedLocation = parent.getItemAtPosition(position) as String
+            searchLocation(selectedLocation)
+        }
+
         searchButton.setOnClickListener {
             val locationName = searchInput.text.toString()
             searchLocation(locationName)
         }
 
-        setupBottomNavigation() // Setup bottom navigation
+        setupBottomNavigation()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.action_maps
     }
@@ -95,10 +113,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(Intent(this, SaveActivity::class.java))
                     true
                 }
-                R.id.action_maps -> {
-                    // Tetap di MapsActivity
-                    true
-                }
+                R.id.action_maps -> true
                 else -> false
             }
         }
@@ -135,7 +150,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 getMyLocation()
             } else {
-                // Izin ditolak, tampilkan pesan
+                Log.e("MapsActivity", "Location permission denied")
             }
         }
     }
@@ -148,7 +163,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
+                    findNearbyPetServices(userLatLng)
                 }
+            }.addOnFailureListener { exception ->
+                Log.e("MapsActivity", "Failed to get location: ${exception.message}")
             }
         }
     }
@@ -161,8 +179,38 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val address = addresses[0]
             val latLng = LatLng(address.latitude, address.longitude)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+
+            mMap.addMarker(
+                com.google.android.gms.maps.model.MarkerOptions()
+                    .position(latLng)
+                    .title(locationName)
+            )
         } else {
             Log.e("MapsActivity", "Location not found")
+        }
+    }
+
+    private fun findNearbyPetServices(location: LatLng) {
+        val placesClient = Places.createClient(this)
+
+        val request = FindCurrentPlaceRequest.newInstance(listOf(Place.Field.NAME, Place.Field.LAT_LNG))
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        placesClient.findCurrentPlace(request).addOnSuccessListener { response ->
+            for (placeLikelihood in response.placeLikelihoods) {
+                val place = placeLikelihood.place
+                val markerOptions = com.google.android.gms.maps.model.MarkerOptions()
+                    .position(place.latLng!!)
+                    .title(place.name)
+
+                mMap.addMarker(markerOptions)
+                suggestions.add(place.name) // Menambahkan nama tempat ke daftar saran
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("MapsActivity", "Place not found: ${exception.message}")
         }
     }
 

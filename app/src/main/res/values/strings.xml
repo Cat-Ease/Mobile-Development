@@ -24,5 +24,6 @@
     <string name="search">Search…</string>
     <string name="lihat">lihat semua</string>
     <string name="HomeText">A healthier cat, a happier you.</string>
+    <string name="google_maps_key">AIzaSyDy2LQJJj204ShpcaKkhcbxXOz3OkjAqrQ</string>
 
 </resources>

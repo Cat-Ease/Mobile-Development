@@ -16,20 +16,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/search_input"
-        android:layout_width="318dp"
-        android:layout_height="40dp"
+        android:layout_width="291dp"
+        android:layout_height="44dp"
         android:layout_margin="16dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="2dp"
-        android:autofillHints=""
-        android:inputType="text"
         android:layout_marginTop="16dp"
         android:background="@drawable/rounded_button"
         android:hint="@string/search"
+        android:inputType="text"
+        android:paddingStart="20dp"
+        android:paddingEnd="2dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,15 +35,16 @@
         android:id="@+id/search_button"
         android:layout_width="133dp"
         android:layout_height="37dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_button"
         android:drawableEnd="@drawable/baseline_search_24"
         android:text="@string/search"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_input"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.53"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_input" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

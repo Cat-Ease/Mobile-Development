@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.dicoding.picodiploma.loginwithanimation"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -88,4 +88,5 @@ dependencies {
 
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("com.squareup.picasso:picasso:2.71828")
+    implementation ("com.google.android.libraries.places:places:4.1.0")
 }
