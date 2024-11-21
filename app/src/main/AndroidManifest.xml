@@ -37,7 +37,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".view.article.ArticleDetailActivity" />
         <activity
             android:name=".view.maps.MapsActivity"
             android:exported="true"
