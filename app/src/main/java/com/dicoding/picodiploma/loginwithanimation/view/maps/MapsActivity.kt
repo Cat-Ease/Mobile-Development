@@ -7,6 +7,8 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -38,6 +40,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -48,6 +52,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMapsBinding
     private lateinit var searchInput: AutoCompleteTextView
     private lateinit var searchButton: Button
+    private lateinit var placesClient: PlacesClient
     private val viewModel: MapsViewModel by viewModels {
         ViewModelFactory(
             userRepository = Injection.provideRepository(this),
@@ -66,6 +71,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, getString(R.string.google_maps_key))
         }
+        placesClient = Places.createClient(this)
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -91,6 +97,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setupBottomNavigation()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.action_maps
+
+        // Listener untuk mengupdate saran saat mengetik
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Tidak perlu diimplementasikan
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (s != null && s.isNotEmpty()) {
+                    findAutocompletePredictions(s.toString())
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Tidak perlu diimplementasikan
+            }
+        })
+    }
+
+    private fun findAutocompletePredictions(query: String) {
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setQuery(query)
+            .build()
+
+        placesClient.findAutocompletePredictions(request).addOnSuccessListener { response ->
+            suggestions.clear() // Clear previous suggestions
+            for (prediction in response.autocompletePredictions) {
+                suggestions.add(prediction.getPrimaryText(null).toString())
+            }
+            // Notify the adapter of the change
+            (searchInput.adapter as ArrayAdapter<*>).notifyDataSetChanged()
+        }.addOnFailureListener { exception ->
+            Log.e("MapsActivity", "Error finding autocomplete predictions: ${exception.message}")
+        }
     }
 
     private fun setupBottomNavigation() {
