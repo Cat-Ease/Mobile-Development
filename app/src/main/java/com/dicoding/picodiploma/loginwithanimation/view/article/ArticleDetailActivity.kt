@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.squareup.picasso.Picasso
+import android.widget.Button // Tambahkan import untuk Button
 
 class ArticleDetailActivity : AppCompatActivity() {
 
@@ -14,6 +15,7 @@ class ArticleDetailActivity : AppCompatActivity() {
     private lateinit var articleTitle: TextView
     private lateinit var articleDescription: TextView
     private lateinit var toolbar: Toolbar
+    private lateinit var backButton: Button // Tambahkan variabel untuk Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +30,7 @@ class ArticleDetailActivity : AppCompatActivity() {
         articleImage = findViewById(R.id.detail_article_image)
         articleTitle = findViewById(R.id.detail_article_title)
         articleDescription = findViewById(R.id.detail_article_description)
+        backButton = findViewById(R.id.back_button) // Inisialisasi Button
 
         // Ambil data dari Intent
         val articleId = intent.getStringExtra("ARTICLE_ID")
@@ -39,6 +42,11 @@ class ArticleDetailActivity : AppCompatActivity() {
         articleTitle.text = articleTitleText
         articleDescription.text = articleDescriptionText
         Picasso.get().load(articleImageUrl).into(articleImage) // Menggunakan Picasso untuk memuat gambar
+
+        // Set listener untuk tombol kembali
+        backButton.setOnClickListener {
+            onBackPressed() // Menangani klik tombol kembali
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
