@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.squareup.picasso.Picasso
-import android.widget.Button // Tambahkan import untuk Button
+import android.view.View // Tambahkan import untuk View
 
 class ArticleDetailActivity : AppCompatActivity() {
 
@@ -15,7 +15,7 @@ class ArticleDetailActivity : AppCompatActivity() {
     private lateinit var articleTitle: TextView
     private lateinit var articleDescription: TextView
     private lateinit var toolbar: Toolbar
-    private lateinit var backButton: Button // Tambahkan variabel untuk Button
+    private lateinit var backButton: View // Mengganti Button dengan View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +30,7 @@ class ArticleDetailActivity : AppCompatActivity() {
         articleImage = findViewById(R.id.detail_article_image)
         articleTitle = findViewById(R.id.detail_article_title)
         articleDescription = findViewById(R.id.detail_article_description)
-        backButton = findViewById(R.id.back_button) // Inisialisasi Button
+        backButton = findViewById(R.id.back_button) // Inisialisasi RelativeLayout sebagai backButton
 
         // Ambil data dari Intent
         val articleId = intent.getStringExtra("ARTICLE_ID")
