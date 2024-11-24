@@ -41,7 +41,7 @@ class ArticleActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Mengatur konten judul berita
-        breakingNewsTitle.text = "Artikel"
+        breakingNewsTitle.text = "Article"
 
         // Ambil data dari API
         fetchArticles()
