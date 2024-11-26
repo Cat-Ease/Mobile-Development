@@ -48,7 +48,7 @@ class ArticleActivity : AppCompatActivity() {
     }
 
     private fun fetchArticles() {
-        val url = "https://article-api-684282003208.us-central1.run.app/articles"
+        val url = "https://api-article-785296543353.asia-southeast2.run.app/articles"
         val queue = Volley.newRequestQueue(this)
 
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,

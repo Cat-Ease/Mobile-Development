@@ -22,8 +22,12 @@ import androidx.lifecycle.lifecycleScope
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
+import com.dicoding.picodiploma.loginwithanimation.view.article.ArticleActivity
 import com.dicoding.picodiploma.loginwithanimation.view.login.dataStore
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
+import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
+import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -40,6 +44,7 @@ class AddStoryActivity : AppCompatActivity() {
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private lateinit var addStoryViewModel: AddStoryViewModel
     private lateinit var userPreference: UserPreference
+    private lateinit var bottomNavigationView: BottomNavigationView
     private var imagePath: String? = null
 
     private val CAMERA_REQUEST_CODE = 1001
@@ -51,6 +56,7 @@ class AddStoryActivity : AppCompatActivity() {
 
         imageView = findViewById(R.id.imageView)
         editTextDescription = findViewById(R.id.editTextDescription)
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
 
         val factory = ViewModelFactory.getInstance(this)
         addStoryViewModel = ViewModelProvider(this, factory).get(AddStoryViewModel::class.java)
@@ -81,6 +87,10 @@ class AddStoryActivity : AppCompatActivity() {
                 }
             }
         }
+        setupBottomNavigation()
+
+        // Set the selected item to action_save
+        bottomNavigationView.selectedItemId = R.id.action_add_story
 
         findViewById<Button>(R.id.buttonCamera).setOnClickListener {
             requestCameraPermission()
@@ -93,6 +103,35 @@ class AddStoryActivity : AppCompatActivity() {
         findViewById<Button>(R.id.buttonUpload).setOnClickListener {
             uploadStory()
         }
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.action_home -> {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    true
+                }
+                R.id.action_article -> {
+                    startActivity(Intent(this, ArticleActivity::class.java))
+                    true
+                }
+                R.id.action_add_story -> {
+                    // Already on this page
+                    true
+                }
+                R.id.action_save -> {
+                    startActivity(Intent(this, SaveActivity::class.java))
+                    true
+                }
+                R.id.action_maps -> {
+                    startActivity(Intent(this, MapsActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+        bottomNavigationView.selectedItemId = R.id.action_add_story
     }
 
     private fun saveBitmapToFile(bitmap: Bitmap): String? {
