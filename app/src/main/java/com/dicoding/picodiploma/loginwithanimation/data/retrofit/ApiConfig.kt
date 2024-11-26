@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
 
-    private const val BASE_URL_AUTH = "https://authentication-684282003208.asia-southeast2.run.app/"
+    private const val BASE_URL_AUTH = "https://api-authentication-785296543353.asia-southeast2.run.app/"
     private const val BASE_URL_STORY = "https://story-api.dicoding.dev/v1/"
 
     // Fungsi untuk mendapatkan AuthApi
