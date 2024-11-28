@@ -3,15 +3,14 @@
     <string name="signup">SignUp</string>
     <string name="login">Login</string>
     <string name="message_welcome_page">Aplikasi Ramah Kucing</string>
-    <string name="descTextView">Healthy Cat at your finger tips</string>
-    <string name="title_welcome_page">Hello, welcome to Cat Ease</string>
+    <string name="descTextView">Welcome to cat ease, your cat health app solution</string>
+    <string name="title_welcome_page">Hello!</string>
     <string name="title_signup_page">Please complete the registration form below.</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="message_login_page">Fill out your information to get started.</string>
     <string name="title_login_page">Explore the cat world with us.</string>
     <string name="name">Name</string>
-    <string name="message_main_page">Selamat Berkeluh Kesah di Dicoding Story.</string>
     <string name="greeting">Hello %1$s,</string>
     <string name="logout">Logout</string>
     <string name="title_activity_maps">MapsActivity</string>
@@ -27,4 +26,5 @@
     <string name="HomeText">A healthier cat, a happier you.</string>
     <string name="google_maps_key">AIzaSyDy2LQJJj204ShpcaKkhcbxXOz3OkjAqrQ</string>
     <string name="back">Back</string>
+    <string name="orlogin">Or login with</string>
 </resources>
