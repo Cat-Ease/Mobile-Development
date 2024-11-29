@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         // Inisialisasi ViewPager
         viewPager = findViewById(R.id.viewPager)
-        val images = listOf(R.drawable.img_1, R.drawable.img_2, R.drawable.img_3) // Ganti dengan gambar Anda
+        val images = listOf(R.drawable.slider1, R.drawable.slider2, R.drawable.slider3) // Ganti dengan gambar Anda
         val adapter = ImageSliderAdapter(this, images)
         viewPager.adapter = adapter
 

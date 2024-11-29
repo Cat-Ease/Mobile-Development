@@ -4,6 +4,6 @@
     <corners android:radius="128dp"/> <!-- Meningkatkan radius untuk border yang lebih besar -->
     <stroke
         android:width="2dp"
-        android:color="@color/navy"/>
-    <solid android:color="#54FFFFFF"/> <!-- Warna latar belakang -->
+        android:color="@color/white"/>
+    <solid android:color="@color/white"/> <!-- Warna latar belakang -->
 </shape>
