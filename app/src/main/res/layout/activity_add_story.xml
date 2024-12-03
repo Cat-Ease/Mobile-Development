@@ -70,18 +70,10 @@
             android:layout_height="wrap_content"
             android:text="Gallery" />
 
-        <EditText
-            android:id="@+id/editTextDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Description"
-            android:inputType="textMultiLine"
-            android:lines="4"
-            android:gravity="top|start" />
 
         <Button
             android:id="@+id/buttonUpload"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Upload" />
     </LinearLayout>

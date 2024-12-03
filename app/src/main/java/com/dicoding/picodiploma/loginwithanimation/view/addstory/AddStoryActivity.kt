@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -18,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
@@ -28,18 +26,17 @@ import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
 import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
 import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
 class AddStoryActivity : AppCompatActivity() {
     private lateinit var imageView: ImageView
-    private lateinit var editTextDescription: EditText
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private lateinit var addStoryViewModel: AddStoryViewModel
@@ -55,7 +52,6 @@ class AddStoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_story)
 
         imageView = findViewById(R.id.imageView)
-        editTextDescription = findViewById(R.id.editTextDescription)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
 
         val factory = ViewModelFactory.getInstance(this)
@@ -69,7 +65,11 @@ class AddStoryActivity : AppCompatActivity() {
                 val imageBitmap = result.data?.extras?.get("data") as? Bitmap
                 imageBitmap?.let {
                     imageView.setImageBitmap(it)
-                    imagePath = saveBitmapToFile(it) // Simpan bitmap ke file dan dapatkan path
+                    imagePath = saveBitmapToFile(it)
+                    imagePath?.let { path ->
+                        val imageFile = File(path)
+                        predictDisease(imageFile)
+                    }
                 } ?: run {
                     Toast.makeText(this, "Failed to capture image", Toast.LENGTH_SHORT).show()
                 }
@@ -81,16 +81,17 @@ class AddStoryActivity : AppCompatActivity() {
                 val selectedImageUri: Uri? = result.data?.data
                 selectedImageUri?.let { uri ->
                     imageView.setImageURI(uri)
-                    imagePath = getRealPathFromURI(uri) // Gunakan fungsi ini untuk mendapatkan path
+                    imagePath = getRealPathFromURI(uri)
+                    imagePath?.let { path ->
+                        val imageFile = File(path)
+                        predictDisease(imageFile)
+                    }
                 } ?: run {
                     Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show()
                 }
             }
         }
         setupBottomNavigation()
-
-        // Set the selected item to action_save
-        bottomNavigationView.selectedItemId = R.id.action_add_story
 
         findViewById<Button>(R.id.buttonCamera).setOnClickListener {
             requestCameraPermission()
@@ -101,9 +102,43 @@ class AddStoryActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.buttonUpload).setOnClickListener {
-            uploadStory()
+            if (imagePath != null) {
+                val imageFile = File(imagePath!!)
+                predictDisease(imageFile)
+            } else {
+                Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+    private fun predictDisease(imageFile: File) {
+        val requestFile = RequestBody.create("image/jpeg".toMediaType(), imageFile)
+        val body = MultipartBody.Part.createFormData("photo", imageFile.name, requestFile)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://capstone-443612.et.r.appspot.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(DiseaseApiService::class.java)
+        service.predictDisease(body).enqueue(object : Callback<DiseasePredictionResponse> {
+            override fun onResponse(call: Call<DiseasePredictionResponse>, response: Response<DiseasePredictionResponse>) {
+                if (response.isSuccessful) {
+                    val predictionResult = response.body()?.prediction
+                    val intent = Intent(this@AddStoryActivity, DiseasePredictionResultActivity::class.java)
+                    intent.putExtra("predictionResult", predictionResult)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this@AddStoryActivity, "Failed to get prediction", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<DiseasePredictionResponse>, t: Throwable) {
+                Toast.makeText(this@AddStoryActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
 
     private fun setupBottomNavigation() {
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
@@ -202,44 +237,6 @@ class AddStoryActivity : AppCompatActivity() {
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         galleryLauncher.launch(intent)
-    }
-
-    private fun uploadStory() {
-        val description = editTextDescription.text.toString()
-        if (imagePath.isNullOrEmpty() || description.isEmpty()) {
-            Toast.makeText(this, "Please select an image and enter a description", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val file = File(imagePath!!)
-        if (!file.exists()) {
-            Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val requestFile = RequestBody.create("image/jpeg".toMediaType(), file)
-        val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
-        val descriptionBody = RequestBody.create("text/plain".toMediaType(), description)
-
-        // Ambil token dari UserPreference
-        lifecycleScope.launch {
-            val userModel = userPreference.getSession().first()
-            val token = userModel.token
-            if (token.isEmpty()) {
-                Toast.makeText(this@AddStoryActivity, "Token not found. Please login again.", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            val bearerToken = "Bearer $token"
-
-            addStoryViewModel.uploadStory(descriptionBody, body, bearerToken, {
-                Toast.makeText(this@AddStoryActivity, "Story uploaded successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this@AddStoryActivity, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-            }, { errorMessage ->
-                Toast.makeText(this@AddStoryActivity, errorMessage, Toast.LENGTH_SHORT).show()
-            })
-        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
