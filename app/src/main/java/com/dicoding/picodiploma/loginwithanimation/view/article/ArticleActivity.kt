@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,20 +26,21 @@ class ArticleActivity : AppCompatActivity() {
 
     private lateinit var breakingNewsTitle: TextView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var articleAdapter: ArticleAdapter // Pastikan Anda membuat adapter ini
+    private lateinit var articleAdapter: ArticleAdapter
+    private lateinit var searchArticle: EditText
+    private lateinit var buttonSearch: Button
+    private var articleList: MutableList<Article> = mutableListOf() // Menyimpan semua artikel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_article)
 
-        // Inisialisasi Bottom Navigation
-        setupBottomNavigation()
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.selectedItemId = R.id.action_article
-
         // Inisialisasi Views
         breakingNewsTitle = findViewById(R.id.breaking_news_title)
         recyclerView = findViewById(R.id.recycler_view_articles)
+        searchArticle = findViewById(R.id.search_article)
+        buttonSearch = findViewById(R.id.button_search)
+
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Mengatur konten judul berita
@@ -45,6 +48,18 @@ class ArticleActivity : AppCompatActivity() {
 
         // Ambil data dari API
         fetchArticles()
+
+        // Setup Bottom Navigation
+        setupBottomNavigation()
+
+        // Setup listener untuk tombol pencarian
+        buttonSearch.setOnClickListener {
+            val query = searchArticle.text.toString()
+            filterArticles(query)
+        }
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.action_article
     }
 
     private fun fetchArticles() {
@@ -55,7 +70,6 @@ class ArticleActivity : AppCompatActivity() {
             { response ->
                 // Proses data JSON dan update RecyclerView
                 val articles = response.getJSONObject("data").getJSONArray("articles")
-                val articleList = mutableListOf<Article>() // Pastikan Anda memiliki model Article
                 for (i in 0 until articles.length()) {
                     val articleJson = articles.getJSONObject(i)
                     val article = Article(
@@ -64,7 +78,7 @@ class ArticleActivity : AppCompatActivity() {
                         articleJson.getString("description"),
                         articleJson.getString("image")
                     )
-                    articleList.add(article)
+                    articleList.add(article) // Simpan semua artikel
                 }
                 articleAdapter = ArticleAdapter(articleList) // Pastikan Anda membuat adapter ini
                 recyclerView.adapter = articleAdapter
@@ -75,6 +89,15 @@ class ArticleActivity : AppCompatActivity() {
         )
 
         queue.add(jsonObjectRequest)
+    }
+
+    private fun filterArticles(query: String) {
+        val filteredList = articleList.filter { article ->
+            article.title.contains(query, ignoreCase = true) ||
+                    article.description.contains(query, ignoreCase = true)
+        }
+        articleAdapter = ArticleAdapter(filteredList) // Update adapter dengan artikel yang difilter
+        recyclerView.adapter = articleAdapter
     }
 
     private fun setupBottomNavigation() {
