@@ -27,4 +27,11 @@
     <string name="google_maps_key">AIzaSyDy2LQJJj204ShpcaKkhcbxXOz3OkjAqrQ</string>
     <string name="back">Back</string>
     <string name="orlogin">Or login with</string>
+    <string name="predicted_label">Predicted: %1$s</string>
+    <string name="no_result">No result</string>
+    <string name="no_article_content">No article content</string>
+    <string name="no_title">No title</string>
+    <string name="read_more">Read More</string>
+    <string name="recommendation">Medicine Recommendation</string>
+    <string name="save">Save Result</string>
 </resources>

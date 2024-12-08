@@ -6,6 +6,8 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -56,7 +58,6 @@
             android:exported="false" />
 
         <activity android:name=".view.article.ArticleActivity"/>
-        <activity android:name=".view.detail.DetailStoryActivity" />
         <activity android:name=".view.addstory.AddStoryActivity" />
         <activity android:name=".view.save.SaveActivity"/>
         <activity android:name=".view.addstory.DiseasePredictionResultActivity" />

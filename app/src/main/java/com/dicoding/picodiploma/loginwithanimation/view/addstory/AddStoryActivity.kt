@@ -16,7 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.data.retrofit.DiseaseApiService
 import com.dicoding.picodiploma.loginwithanimation.view.article.ArticleActivity
@@ -51,15 +50,16 @@ class AddStoryActivity : AppCompatActivity() {
 
         imageView = findViewById(R.id.imageView)
 
+        // Mengatur launcher untuk kamera
         cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val imageBitmap = result.data?.extras?.get("data") as? Bitmap
                 imageBitmap?.let {
                     imageView.setImageBitmap(it)
-                    imagePath = saveBitmapToFile(it)
+                    imagePath = saveBitmapToFile(it) // Simpan gambar ke file
                     imagePath?.let { path ->
                         val imageFile = File(path)
-                        predictDisease(imageFile)
+                        predictDisease(imageFile) // Panggil fungsi untuk memprediksi penyakit
                     }
                 } ?: run {
                     Toast.makeText(this, "Failed to capture image", Toast.LENGTH_SHORT).show()
@@ -67,6 +67,7 @@ class AddStoryActivity : AppCompatActivity() {
             }
         }
 
+        // Mengatur launcher untuk galeri
         galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val selectedImageUri: Uri? = result.data?.data
@@ -75,7 +76,7 @@ class AddStoryActivity : AppCompatActivity() {
                     imagePath = getRealPathFromURI(uri)
                     imagePath?.let { path ->
                         val imageFile = File(path)
-                        predictDisease(imageFile)
+                        predictDisease(imageFile) // Panggil fungsi untuk memprediksi penyakit
                     }
                 } ?: run {
                     Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show()
@@ -83,18 +84,21 @@ class AddStoryActivity : AppCompatActivity() {
             }
         }
 
+        // Mengatur listener untuk tombol kamera
         findViewById<Button>(R.id.buttonCamera).setOnClickListener {
             requestCameraPermission()
         }
 
+        // Mengatur listener untuk tombol galeri
         findViewById<Button>(R.id.buttonGallery).setOnClickListener {
             requestStoragePermission()
         }
 
+        // Mengatur listener untuk tombol upload
         findViewById<Button>(R.id.buttonUpload).setOnClickListener {
             if (imagePath != null) {
                 val imageFile = File(imagePath!!)
-                predictDisease(imageFile)
+                predictDisease(imageFile) // Panggil fungsi untuk memprediksi penyakit
             } else {
                 Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show()
             }
@@ -164,6 +168,7 @@ class AddStoryActivity : AppCompatActivity() {
                         intent.putExtra("medicationLink", predictionResult?.article?.medication_link)
                         intent.putExtra("articleTitle", predictionResult?.article?.title)
                         intent.putExtra("imageUrl", predictionResult?.image_url)
+                        intent.putExtra("imageUrl", imagePath) // Kirimkan path gambar
                         startActivity(intent) // Memulai activity hasil prediksi
                     }
                 } else {

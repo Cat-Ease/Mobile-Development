@@ -55,28 +55,48 @@
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="350dp"
-            android:background="@color/white"
-            android:scaleType="centerCrop" />
+            android:background="@drawable/border_image_view"
+            android:scaleType="centerCrop"/>
 
-        <Button
-            android:id="@+id/buttonCamera"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Camera" />
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
 
-        <Button
-            android:id="@+id/buttonGallery"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Gallery" />
+            <Button
+                android:id="@+id/buttonCamera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Camera"
+                android:backgroundTint="@color/bluelight"
+                android:textColor="@android:color/white"
+                android:padding="12dp" />
 
+            <Button
+                android:id="@+id/buttonGallery"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Gallery"
+                android:backgroundTint="@color/bluelight"
+                android:textColor="@android:color/white"
+                android:padding="12dp"
+                android:layout_marginStart="8dp" /> <!-- Margin untuk jarak antar tombol -->
+        </LinearLayout>
 
         <Button
             android:id="@+id/buttonUpload"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Upload" />
+            android:text="Upload"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/navy"
+            android:textColor="@android:color/white"
+            android:padding="12dp" />
     </LinearLayout>
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
