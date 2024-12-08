@@ -18,18 +18,19 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.dicoding.picodiploma.loginwithanimation.R
-import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
-import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
+import com.dicoding.picodiploma.loginwithanimation.data.retrofit.DiseaseApiService
 import com.dicoding.picodiploma.loginwithanimation.view.article.ArticleActivity
-import com.dicoding.picodiploma.loginwithanimation.view.login.dataStore
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
 import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
 import com.dicoding.picodiploma.loginwithanimation.view.save.SaveActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import okhttp3.MediaType.Companion.toMediaType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.*
+import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.FileOutputStream
@@ -39,9 +40,6 @@ class AddStoryActivity : AppCompatActivity() {
     private lateinit var imageView: ImageView
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
-    private lateinit var addStoryViewModel: AddStoryViewModel
-    private lateinit var userPreference: UserPreference
-    private lateinit var bottomNavigationView: BottomNavigationView
     private var imagePath: String? = null
 
     private val CAMERA_REQUEST_CODE = 1001
@@ -52,13 +50,6 @@ class AddStoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_story)
 
         imageView = findViewById(R.id.imageView)
-        bottomNavigationView = findViewById(R.id.bottom_navigation)
-
-        val factory = ViewModelFactory.getInstance(this)
-        addStoryViewModel = ViewModelProvider(this, factory).get(AddStoryViewModel::class.java)
-
-        // Inisialisasi UserPreference
-        userPreference = UserPreference.getInstance(dataStore)
 
         cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -91,7 +82,6 @@ class AddStoryActivity : AppCompatActivity() {
                 }
             }
         }
-        setupBottomNavigation()
 
         findViewById<Button>(R.id.buttonCamera).setOnClickListener {
             requestCameraPermission()
@@ -109,38 +99,15 @@ class AddStoryActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please select an image first", Toast.LENGTH_SHORT).show()
             }
         }
+
+        setupBottomNavigation()
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.action_add_story
     }
-
-    private fun predictDisease(imageFile: File) {
-        val requestFile = RequestBody.create("image/jpeg".toMediaType(), imageFile)
-        val body = MultipartBody.Part.createFormData("photo", imageFile.name, requestFile)
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://capstone-443612.et.r.appspot.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val service = retrofit.create(DiseaseApiService::class.java)
-        service.predictDisease(body).enqueue(object : Callback<DiseasePredictionResponse> {
-            override fun onResponse(call: Call<DiseasePredictionResponse>, response: Response<DiseasePredictionResponse>) {
-                if (response.isSuccessful) {
-                    val predictionResult = response.body()?.prediction
-                    val intent = Intent(this@AddStoryActivity, DiseasePredictionResultActivity::class.java)
-                    intent.putExtra("predictionResult", predictionResult)
-                    startActivity(intent)
-                } else {
-                    Toast.makeText(this@AddStoryActivity, "Failed to get prediction", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<DiseasePredictionResponse>, t: Throwable) {
-                Toast.makeText(this@AddStoryActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
 
     private fun setupBottomNavigation() {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.action_home -> {
@@ -152,7 +119,6 @@ class AddStoryActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_add_story -> {
-                    // Already on this page
                     true
                 }
                 R.id.action_save -> {
@@ -166,7 +132,55 @@ class AddStoryActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        bottomNavigationView.selectedItemId = R.id.action_add_story
+    }
+
+    private fun predictDisease(imageFile: File) {
+        // Membuat RequestBody untuk gambar
+        val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), imageFile)
+        // Menggunakan key "image" sesuai dengan yang diharapkan oleh API
+        val body = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
+
+        // Membuat Retrofit instance
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://flask-app-785296543353.asia-southeast2.run.app/") // URL API
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(DiseaseApiService::class.java)
+
+        // Menggunakan coroutine untuk memanggil fungsi suspend
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = service.predictDisease(body)
+                if (response.isSuccessful) {
+                    val predictionResult = response.body()
+                    runOnUiThread {
+                        // Intent ke DiseasePredictionResultActivity
+                        val intent = Intent(this@AddStoryActivity, DiseasePredictionResultActivity::class.java)
+                        intent.putExtra("predictedLabel", predictionResult?.predicted_label)
+                        intent.putExtra("accuracy", predictionResult?.accuracy)
+                        intent.putExtra("articleContent", predictionResult?.article?.content)
+                        intent.putExtra("articleLink", predictionResult?.article?.link)
+                        intent.putExtra("medicationLink", predictionResult?.article?.medication_link)
+                        intent.putExtra("articleTitle", predictionResult?.article?.title)
+                        intent.putExtra("imageUrl", predictionResult?.image_url)
+                        startActivity(intent) // Memulai activity hasil prediksi
+                    }
+                } else {
+                    // Menangani kesalahan respons
+                    val errorCode = response.code()
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                    runOnUiThread {
+                        Toast.makeText(this@AddStoryActivity, "Failed to get prediction: $errorCode - ${response.message()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                // Menangani kesalahan jaringan atau kesalahan lainnya
+                runOnUiThread {
+                    Toast.makeText(this@AddStoryActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun saveBitmapToFile(bitmap: Bitmap): String? {
