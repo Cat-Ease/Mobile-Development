@@ -3,6 +3,8 @@ package com.dicoding.picodiploma.loginwithanimation.view.splash
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.view.View
+import android.view.animation.AlphaAnimation
 import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
@@ -15,6 +17,14 @@ class SplashScreenActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
 
         // Menampilkan splash screen selama 3 detik
+        val logoImageView: View = findViewById(R.id.logoImageView)
+
+        // Animasi fade-in
+        val fadeIn = AlphaAnimation(0f, 1f)
+        fadeIn.duration = 4500 // Durasi animasi 1.5 detik
+        fadeIn.fillAfter = true
+        logoImageView.startAnimation(fadeIn)
+
         Handler().postDelayed({
             checkLoginStatus() // Memeriksa status login
         }, 3000) // 3000 ms = 3 detik
