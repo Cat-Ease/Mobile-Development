@@ -58,12 +58,12 @@ class SignupActivity : AppCompatActivity() {
                 // Periksa apakah ada error
                 if (response.error == true) {
                     // Tampilkan pesan error
-                    showAlert("Error", response.message ?: "Terjadi kesalahan saat registrasi")
+                    showAlert("Error", response.message ?: "There was an error during registration")
                 } else {
                     // Proses registrasi berhasil
                     authViewModel.saveSession(UserModel(name = name, email = email, token = "", password = password))
 
-                    showAlert("Sukses", "Akun berhasil dibuat!") {
+                    showAlert("Success", "Account created successfully!") {
                         val intent = Intent(this@SignupActivity, WelcomeActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
